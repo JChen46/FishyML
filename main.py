@@ -1,6 +1,8 @@
 import random
+from fish_map import MAP
 import pygame
 import params
+from write_fish import write_fish
 import initialize
 
 pygame.init()
@@ -26,8 +28,17 @@ while params.APP_RUNNING:
         if event.type == pygame.QUIT:
             params.APP_RUNNING = False
 
+    # check if no more fish, then finish generation
+    dead_count = 0
+    for fish in MAP.fish_list:
+        if(fish.state == 'dead'):
+            dead_count += 1
+    if(dead_count) > 0:
+        write_fish(MAP.fish_list) # writes fish stats to file
+        
+
     # call fish forth unto thy destiny
-    for fishy in fish_map.fish:
+    for fishy in MAP.fish_list:
         fishy.act(fishy)
 
     # updates entire display

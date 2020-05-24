@@ -14,13 +14,15 @@ class Fish:
         self.pos = pos.Pos(posX, posY)
         self.dir = random.uniform(-math.pi, math.pi)
         self.traits = traits
-        self.set_state('roaming')
+        # self.set_state('roaming')
+        self.state = 'roaming'
         self.rotation_speed = 0.05
         self.eating_speed = 1
         self.energy_consumption = 1
         self.eat_proximity = 10
         self.energy = energy
         self.food = None
+        
 
     def set_state(self, new_state):
         if self.state == new_state:
@@ -37,7 +39,7 @@ class Fish:
         food_dir, _dist = pos.get_dir_dist(self, self.food)
         faster_dir = pos.closer_to_zero(food_dir - self.dir, food_dir - self.dir - 2 * math.pi)
         rotate_amount = math.copysign(self.rotation_speed, faster_dir)
-        # make sure it stays within -pi - pi
+        # make sure it stays within -pi through pi
         self.dir = ((self.dir + rotate_amount + math.pi) % (2 * math.pi)) - math.pi
         self.energy -= self.energy_consumption * self.traits.size
 
