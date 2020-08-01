@@ -3,16 +3,16 @@ import fish_map
 
 class Pos:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
     
     @property
     def x(self):
-        return self.x
+        return self._x
     
     @property
     def y(self):
-        return self.y
+        return self._y
 
 def closer_to_zero(a, b):
     if abs(a) < abs(b):

@@ -7,6 +7,7 @@ class Fish_map:
         self._size_x = size_x
         self._size_y = size_y
         self._fish_list = []
+        self._dead_list = []
         self.food_list = []
         self.food_spawn_rate = food_spawn_rate
     
@@ -22,6 +23,10 @@ class Fish_map:
     def fish_list(self):
         return self._fish_list
 
+    @property
+    def dead_list(self):
+        return self._dead_list
+
     @size_x.setter
     def size_x(self, value):
         self._size_x = value
@@ -32,6 +37,11 @@ class Fish_map:
 
     def add_fish(self, fish):
         self._fish_list.append(fish)
+
+    def move_fish(self, fish): # moves a dead fish from fish_list to dead_list
+        self._dead_list.append(fish)
+        print('REMOVING FISH ', fish)
+        self._fish_list.remove(fish)
 
     def add_food(self, food):
         self.food_list.append(food)
@@ -45,9 +55,11 @@ class Fish_map:
             yield food
 
     # For clearing lists when new generation starts. Might be moved/refactored to ga.py
-    def clear_lists(self): 
+    def clear_lists(self):
         self._fish_list.clear()
         self.food_list.clear()
 
 MAP = Fish_map(params.MAP_SIZE_X, params.MAP_SIZE_Y, params.FOOD_SPAWN_RATE, params.NUM_FISHES)
-print('goo goo gaa gaa')
+def reset_fish_map():
+    global MAP
+    MAP = Fish_map(params.MAP_SIZE_X, params.MAP_SIZE_Y, params.FOOD_SPAWN_RATE, params.NUM_FISHES)

@@ -1,5 +1,5 @@
 import random
-from fish_map import MAP
+from fish_map import MAP, reset_fish_map
 import pygame
 import params
 from write_fish import write_fish
@@ -18,7 +18,7 @@ count = 0
 # initialize.testprint()
 
 screen.fill((255, 255, 255))
-pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
+pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75) # args(surface instance, (R,G,B), )
 
 while params.APP_RUNNING:
     dt = clock.tick(30) * 0.01
@@ -29,17 +29,13 @@ while params.APP_RUNNING:
             params.APP_RUNNING = False
 
     # check if no more fish, then finish generation
-    dead_count = 0
-    for fish in MAP.fish_list:
-        if(fish.state == 'dead'):
-            dead_count += 1
-    if(dead_count) > 0:
-        write_fish(MAP.fish_list) # writes fish stats to file
-        
+    if(len(MAP.fish_list) == 0):
+        write_fish(MAP) # writes fish stats to file
+        initialize_import(MAP)
 
     # call fish forth unto thy destiny
     for fishy in MAP.fish_list:
-        fishy.act(fishy)
+        fishy.act()
 
     # updates entire display
     pygame.display.flip()

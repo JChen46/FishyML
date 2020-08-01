@@ -4,6 +4,8 @@ import pos
 import params
 import fish_map
 
+import testing
+
 # traits:
 #   * search radius
 #   * roaming speed
@@ -22,7 +24,15 @@ class Fish:
         self.eat_proximity = 10
         self.energy = energy
         self.food = None
-        
+        self.fitness = 0
+
+    def __repr__(self):
+        s = "---FISH---\n"
+        s += "state = {}\n".format(self.state)
+        s += "pos = {:.3f}, {:.3f}\n".format(self.pos.x, self.pos.y)
+        s += "traits = {}\n".format("{" + ", ".join(["{}: {}".format(k, str(round(v, 3))) for k, v in self.traits.items()]) + "}")
+        s += "----------"
+        return s
 
     def set_state(self, new_state):
         if self.state == new_state:
@@ -66,7 +76,14 @@ class Fish:
         # if no energy, become dead
         if self.energy <= 0:
             self.set_state('dead')
+            try:
+                fish_map.MAP.move_fish(self) # calls move_fish in fish_map to transition this fish from alive to dead
+            except:
+                print("MOVE_FISH ERROR: fish was not moved to dead_list")
             return
+
+        # increment fitness
+        self.fitness += 1
 
         if self.state == 'eating':
             if self.food.energy <= 0:
