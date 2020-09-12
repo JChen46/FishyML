@@ -14,6 +14,14 @@ class Pos:
     def y(self):
         return self._y
 
+    @x.setter
+    def x(self, value):
+        self._x = value
+
+    @y.setter
+    def y(self, value):
+        self._y = value
+
 def closer_to_zero(a, b):
     if abs(a) < abs(b):
         return a

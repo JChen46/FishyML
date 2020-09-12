@@ -1,4 +1,3 @@
-from fish_map import MAP
 
 def print_self(s):
     print(repr(s))

@@ -1,6 +1,6 @@
 
 APP_RUNNING = True
-ENABLE_VISUALIZATION = True
+ENABLE_GRAPHICS = True
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
 
@@ -14,13 +14,13 @@ SEARCH_RADIUS_MIN = 10
 SEARCH_RADIUS_MAX = 100
 
 ROAMING_SPEED_MIN = 1
-ROAMING_SPEED_MAX = 100
+ROAMING_SPEED_MAX = 10
 
 SEEKING_SPEED_MIN = 1
-SEEKING_SPEED_MAX = 100
+SEEKING_SPEED_MAX = 10
 
-FISH_SIZE_MIN = 1
-FISH_SIZE_MAX = 100
+FISH_SIZE_MIN = 0.3
+FISH_SIZE_MAX = 2
 
 # perhaps move the min and maxes into here too
 # then we could apply the mins and maxes to the genetic trait values

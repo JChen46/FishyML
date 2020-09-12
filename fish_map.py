@@ -1,6 +1,7 @@
 import params
-import fish
+from fish import Fish
 import random
+import math
 
 class Fish_map:
     def __init__(self, size_x, size_y, food_spawn_rate, num_fishes):
@@ -36,11 +37,21 @@ class Fish_map:
         self._size_y = value
 
     def add_fish(self, fish):
-        self._fish_list.append(fish)
+        if not fish:
+            size_mode = math.sqrt(params.FISH_SIZE_MAX * params.FISH_SIZE_MIN)
+            traits = {
+                'search_radius' : random.uniform(params.SEARCH_RADIUS_MIN, params.SEARCH_RADIUS_MAX),
+                'roaming_speed' : math.exp(random.uniform(math.log(params.ROAMING_SPEED_MIN), math.log(params.ROAMING_SPEED_MAX))),
+                'seeking_speed' : random.uniform(params.SEEKING_SPEED_MIN, params.SEEKING_SPEED_MAX),
+                'size' : random.triangular(params.FISH_SIZE_MIN, params.FISH_SIZE_MAX, size_mode)
+            }
+            self._fish_list.append(Fish(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100, traits))
+        else:
+            self._fish_list.append(fish)
 
     def move_fish(self, fish): # moves a dead fish from fish_list to dead_list
         self._dead_list.append(fish)
-        print('REMOVING FISH ', fish)
+        # print('REMOVING FISH ', fish)
         self._fish_list.remove(fish)
 
     def add_food(self, food):
@@ -58,8 +69,3 @@ class Fish_map:
     def clear_lists(self):
         self._fish_list.clear()
         self.food_list.clear()
-
-MAP = Fish_map(params.MAP_SIZE_X, params.MAP_SIZE_Y, params.FOOD_SPAWN_RATE, params.NUM_FISHES)
-def reset_fish_map():
-    global MAP
-    MAP = Fish_map(params.MAP_SIZE_X, params.MAP_SIZE_Y, params.FOOD_SPAWN_RATE, params.NUM_FISHES)
