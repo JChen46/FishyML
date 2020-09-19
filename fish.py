@@ -22,8 +22,8 @@ class Fish:
         self.speed = self.traits['roaming_speed']
         self.rotation_speed = 0.05
         self.eating_speed = 1
-        self.energy_consumption = 1
-        self.eat_proximity = 10
+        self.energy_consumption = 0.1 # default 1
+        self.eat_proximity = 40 * traits['size']
         self.energy = energy
         self.food = None
         self.fitness = 0
@@ -59,7 +59,7 @@ class Fish:
         rotate_amount = math.copysign(self.rotation_speed * dt, faster_dir)
         # make sure it stays within -pi through pi
         self.dir = ((self.dir + rotate_amount + math.pi) % (2 * math.pi)) - math.pi
-        self.energy -= self.energy_consumption * self.traits['size'] * dt
+        self.energy -= self.traits['seeking_speed'] * self.energy_consumption * self.traits['size'] * dt
 
     def roam(self, dt):
         self.pos.x = (self.pos.x + self.speed * dt * math.cos(self.dir)) % params.MAP_SIZE_X
@@ -71,7 +71,7 @@ class Fish:
             self.timer = random.randint(5, 20)
         # make sure it stays within -pi - pi 
         self.dir = ((self.dir + self.rotate_amount + math.pi) % (2 * math.pi)) - math.pi
-        self.energy -= self.energy_consumption * self.traits['size'] * dt
+        self.energy -= self.traits['roaming_speed'] * self.energy_consumption * self.traits['size'] * dt
 
     def get_pos(self):
         return (self.pos.x, self.pos.y, self.dir)
@@ -108,7 +108,7 @@ class Fish:
             if self.food.energy <= 0:
                 self.set_state('seeking')
             else:
-                self.food.energy -= self.eating_speed
+                self.food.energy -= self.eating_speed * dt
                 return
 
         if self.state == 'seeking':
@@ -124,30 +124,29 @@ class Fish:
         if self.state == 'roaming':
             food_found, food = self.search_for_food(fish_map)
             if food_found:
-                _dir, dist = pos.get_dir_dist(self, food)
-                if dist <= self.traits['search_radius']:
-                    self.food = food
-                    self.set_state('seeking')
-                    return
+                self.food = food
+                self.set_state('seeking')
+                return
             self.roam(dt)
             
     # searches for food using the fish_map.MAP and pos.get_dir_dist
     # returns <is food found?>, <food object>
     # food will not be found if outside traits.search_radius
     def search_for_food(self, fish_map):
-        #food_gen = fish_map.get_food()
-        return False, None
+        food_gen = fish_map.get_food()
 
         # poopy code
-        #  _dir, closest_food_dist = pos.get_dir_dist(self, closest_food)
-        # for next_food in food_gen:
-        #     _dir, next_food_dist = pos.get_dir_dist(self, next_food)
-        #     if next_food_dist < closest_food_dist:
-        #         closest_food, closest_food_dist = next_food, next_food_dist
-        # if closest_food_dist <= self.traits['search_radius']:
-        #     return True, closest_food
-        # else:
-        #     return False, None
+        #_dir, closest_food_dist = pos.get_dir_dist(self, closest_food)
+        closest_food, closest_food_dist = None, float("inf")
+        for next_food in food_gen:
+            _dir, next_food_dist = pos.get_dir_dist(self, next_food)
+            print(next_food_dist)
+            if next_food_dist < closest_food_dist:
+                closest_food, closest_food_dist = next_food, next_food_dist
+        if closest_food_dist <= self.traits['search_radius']:
+            return True, closest_food
+        else:
+            return False, None
 
 class Fish_Sprite(pygame.sprite.Sprite):
     def __init__(self, fish_size):

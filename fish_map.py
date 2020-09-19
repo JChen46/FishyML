@@ -1,16 +1,17 @@
 import params
 from fish import Fish
+from food import Food
 import random
 import math
 
 class Fish_map:
-    def __init__(self, size_x, size_y, food_spawn_rate, num_fishes):
+    def __init__(self, size_x, size_y, num_food, num_fishes):
         self._size_x = size_x
         self._size_y = size_y
         self._fish_list = []
         self._dead_list = []
-        self.food_list = []
-        self.food_spawn_rate = food_spawn_rate
+        self._food_list = []
+        self.num_food = num_food
     
     @property
     def size_x(self):
@@ -27,6 +28,10 @@ class Fish_map:
     @property
     def dead_list(self):
         return self._dead_list
+
+    @property
+    def food_list(self):
+        return self._food_list
 
     @size_x.setter
     def size_x(self, value):
@@ -55,17 +60,21 @@ class Fish_map:
         self._fish_list.remove(fish)
 
     def add_food(self, food):
-        self.food_list.append(food)
+        if not food:
+            #self._food_list.append(Food(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100, 0))
+            self._food_list.append(Food(400, 300, 100, 0)) # DEBUGGING - spawn food in middle
+        else:
+            self._food_list.append(food)
 
     def get_fish(self):
         for fish in self.fish_list:
             yield fish
 
     def get_food(self):
-        for food in self.food_list:
+        for food in self._food_list:
             yield food
 
     # For clearing lists when new generation starts. Might be moved/refactored to ga.py
     def clear_lists(self):
         self._fish_list.clear()
-        self.food_list.clear()
+        self._food_list.clear()

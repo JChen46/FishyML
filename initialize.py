@@ -6,9 +6,13 @@ import copy
 
 def initialize_random(map_input):
     # initialize fish_map fish_list
-    for i in range(params.NUM_FISHES):
+    for _ in range(params.NUM_FISHES):
         map_input.add_fish(None)
         # print(map_input.fish_list[i])
+    
+    # initialize fish_map food_list
+    for _ in range(params.NUM_FOOD):
+        map_input.add_food(None)
 
 # wrong way to split in half, fix this later
 def initialize_import(old_fish_map_input, map_input):
