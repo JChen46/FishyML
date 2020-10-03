@@ -20,8 +20,9 @@ class Fish:
         # self.set_state('roaming')
         self.state = 'roaming'
         self.speed = self.traits['roaming_speed']
-        self.rotation_speed = 0.05
-        self.eating_speed = 1
+        self.roaming_rotation_speed = 0.05
+        self.seeking_rotation_speed = 2.5 * self.roaming_rotation_speed
+        self.eating_speed = 1 * traits['size']
         self.energy_consumption = 0.1 # default 1
         self.eat_proximity = 40 * traits['size']
         self.energy = energy
@@ -56,7 +57,7 @@ class Fish:
         self.pos.y = (self.pos.y + self.speed * dt * math.sin(self.dir)) % params.MAP_SIZE_Y
         food_dir, _dist = pos.get_dir_dist(self, self.food)
         faster_dir = pos.closer_to_zero(food_dir - self.dir, food_dir - self.dir - 2 * math.pi)
-        rotate_amount = math.copysign(self.rotation_speed * dt, faster_dir)
+        rotate_amount = math.copysign(self.seeking_rotation_speed * dt, faster_dir)
         # make sure it stays within -pi through pi
         self.dir = ((self.dir + rotate_amount + math.pi) % (2 * math.pi)) - math.pi
         self.energy -= self.traits['seeking_speed'] * self.energy_consumption * self.traits['size'] * dt
@@ -67,11 +68,11 @@ class Fish:
 
         self.timer -= dt
         if (self.timer <= 0):
-            self.rotate_amount = self.rotation_speed * random.randint(-1, 1)
+            self.rotate_amount = self.roaming_rotation_speed * random.randint(-1, 1)
             self.timer = random.randint(5, 20)
         # make sure it stays within -pi - pi 
         self.dir = ((self.dir + self.rotate_amount + math.pi) % (2 * math.pi)) - math.pi
-        self.energy -= self.traits['roaming_speed'] * self.energy_consumption * self.traits['size'] * dt
+        self.energy -= self.traits['roaming_speed'] * (self.traits['search_radius'] / 250) * self.energy_consumption * self.traits['size'] * dt
 
     def get_pos(self):
         return (self.pos.x, self.pos.y, self.dir)
@@ -89,7 +90,8 @@ class Fish:
         if self.state == 'dead':
             return
         # if no energy, become dead
-        if self.energy <= 0:
+        if self.energy <= 1:
+            print('I died with {} energy'.format(self.energy))
             self.set_state('dead')
             if params.ENABLE_GRAPHICS:
                 self.sprite.make_dead()
@@ -108,6 +110,7 @@ class Fish:
             if self.food.energy <= 0:
                 self.set_state('seeking')
             else:
+                self.energy += self.eating_speed * dt
                 self.food.energy -= self.eating_speed * dt
                 return
 
@@ -140,7 +143,7 @@ class Fish:
         closest_food, closest_food_dist = None, float("inf")
         for next_food in food_gen:
             _dir, next_food_dist = pos.get_dir_dist(self, next_food)
-            print(next_food_dist)
+            #print(next_food_dist)
             if next_food_dist < closest_food_dist:
                 closest_food, closest_food_dist = next_food, next_food_dist
         if closest_food_dist <= self.traits['search_radius']:

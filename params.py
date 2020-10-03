@@ -7,8 +7,8 @@ WINDOW_HEIGHT = 600
 MAP_SIZE_X = 800
 MAP_SIZE_Y = 600
 
-NUM_FISHES = 1
-NUM_FOOD = 1
+NUM_FISHES = 10
+NUM_FOOD = 4
 
 SEARCH_RADIUS_MIN = 100
 SEARCH_RADIUS_MAX = 1000
@@ -21,6 +21,9 @@ SEEKING_SPEED_MAX = 10
 
 FISH_SIZE_MIN = 0.3
 FISH_SIZE_MAX = 2
+
+FOOD_SPAWN_RATE = 40
+FOOD_SPAWN_VARIANCE = 10
 
 # perhaps move the min and maxes into here too
 # then we could apply the mins and maxes to the genetic trait values

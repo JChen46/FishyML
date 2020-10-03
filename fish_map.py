@@ -50,7 +50,7 @@ class Fish_map:
                 'seeking_speed' : random.uniform(params.SEEKING_SPEED_MIN, params.SEEKING_SPEED_MAX),
                 'size' : random.triangular(params.FISH_SIZE_MIN, params.FISH_SIZE_MAX, size_mode)
             }
-            self._fish_list.append(Fish(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100, traits))
+            self._fish_list.append(Fish(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100 * traits['size'], traits))
         else:
             self._fish_list.append(fish)
 
@@ -61,8 +61,8 @@ class Fish_map:
 
     def add_food(self, food):
         if not food:
-            #self._food_list.append(Food(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100, 0))
-            self._food_list.append(Food(400, 300, 100, 0)) # DEBUGGING - spawn food in middle
+            self._food_list.append(Food(random.uniform(0, params.WINDOW_WIDTH), random.uniform(0, params.WINDOW_HEIGHT), 100, 0))
+            # self._food_list.append(Food(400, 300, 100, 0)) # DEBUGGING - spawn food in middle
         else:
             self._food_list.append(food)
 

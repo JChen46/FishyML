@@ -15,8 +15,7 @@ def initialize_random(map_input):
         map_input.add_food(None)
 
 # wrong way to split in half, fix this later
-def initialize_import(old_fish_map_input, map_input):
-    old_fish_map = copy.deepcopy(old_fish_map_input)
+def initialize_import(old_fish_map, map_input):
     old_dead_list = old_fish_map.dead_list
     old_dead_list.sort(key=lambda fish: fish['fitness'])
     for i, fish in enumerate(old_dead_list):
