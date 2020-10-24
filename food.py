@@ -43,5 +43,5 @@ class Food_Sprite(pygame.sprite.Sprite):
         eat_amount = 1 - self.food.energy / start_energy # closer to 1 the closer to zero energy the fish is
         color = (255 - 255*(1-eat_amount), 255 - 255*eat_amount, 0)
         color = tuple([min(max(x, 0), 255) for x in color])
-        pygame.draw.circle(screen, color, (self.food.pos.x, self.food.pos.y), self.food.energy//5)
+        pygame.draw.circle(screen, color, (self.food.pos.x, self.food.pos.y), self.food.energy//5 + 3)
         

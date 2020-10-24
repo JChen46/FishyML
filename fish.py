@@ -4,6 +4,7 @@ import pos
 import params
 import fish_map
 import pygame
+from copy import deepcopy
 
 import testing
 
@@ -19,15 +20,24 @@ class Fish:
         self.traits = traits
         # self.set_state('roaming')
         self.state = 'roaming'
-        self.speed = self.traits['roaming_speed']
+        self.speed = self.traits['roaming_speed'] # Old movement method
         self.roaming_rotation_speed = 0.05
         self.seeking_rotation_speed = 2.5 * self.roaming_rotation_speed
         self.eating_speed = 1 * traits['size']
-        self.energy_consumption = 0.1 # default 1
+        self.energy_consumption_multiplier = 0.1 * self.traits['size'] # default 1
         self.eat_proximity = 40 * traits['size']
         self.energy = energy
         self.food = None
         self.fitness = 0
+
+        #seek stuff
+        self.kp = 10
+        self.td = 0.001
+        self.last_angle = 0
+        self.xvel = 0
+        self.yvel = 0
+        self.xforce = 0
+        self.yforce = 0
 
         self.timer = random.randint(5, 20)
         self.rotate_amount = 0
@@ -43,6 +53,9 @@ class Fish:
         s += "----------"
         return s
 
+    def __deepcopy__(self, memo):
+        return Fish(self.pos.x, self.pos.y, self.energy, self.traits)
+
     def set_state(self, new_state):
         if self.state == new_state:
             return
@@ -53,14 +66,28 @@ class Fish:
             self.speed = self.traits['seeking_speed']
 
     def seek(self, dt):
-        self.pos.x = (self.pos.x + self.speed * dt * math.cos(self.dir)) % params.MAP_SIZE_X
-        self.pos.y = (self.pos.y + self.speed * dt * math.sin(self.dir)) % params.MAP_SIZE_Y
+        old_pos_x = self.pos.x
+        old_pos_y = self.pos.y
+        # kp * (xref - x) + kt * (vref - v)
+        self.xforce = (40 * (self.food.pos.x - self.pos.x)*dt + 12 * (-self.xvel))/1000
+        self.yforce = (40 * (self.food.pos.y - self.pos.y)*dt + 12 * (-self.yvel))/1000
+        # Old movement method
+        self.pos.x = (self.pos.x + self.xforce * self.traits['seeking_speed']/10 * dt)
+        self.pos.y = (self.pos.y + self.yforce * self.traits['seeking_speed']/10 * dt)
+        self.xvel = (self.pos.x - old_pos_x)/dt
+        self.yvel = (self.pos.y - old_pos_y)/dt
+        self.pos.x = self.pos.x % params.MAP_SIZE_X
+        self.pos.y = self.pos.y % params.MAP_SIZE_Y
+
         food_dir, _dist = pos.get_dir_dist(self, self.food)
-        faster_dir = pos.closer_to_zero(food_dir - self.dir, food_dir - self.dir - 2 * math.pi)
-        rotate_amount = math.copysign(self.seeking_rotation_speed * dt, faster_dir)
+        angle = math.atan2(math.sin(food_dir - self.dir), math.cos(food_dir - self.dir))
+        rotate_amount = self.kp*self.seeking_rotation_speed*(angle + self.td*(angle - self.last_angle)/dt)
+        
+        #faster_dir = pos.closer_to_zero(food_dir - self.dir, food_dir - self.dir - 2 * math.pi)
+        #rotate_amount = math.copysign(self.seeking_rotation_speed * dt, faster_dir)
         # make sure it stays within -pi through pi
         self.dir = ((self.dir + rotate_amount + math.pi) % (2 * math.pi)) - math.pi
-        self.energy -= self.traits['seeking_speed'] * self.energy_consumption * self.traits['size'] * dt
+        self.energy -= self.traits['seeking_speed'] * self.energy_consumption_multiplier * dt
 
     def roam(self, dt):
         self.pos.x = (self.pos.x + self.speed * dt * math.cos(self.dir)) % params.MAP_SIZE_X
@@ -72,7 +99,7 @@ class Fish:
             self.timer = random.randint(5, 20)
         # make sure it stays within -pi - pi 
         self.dir = ((self.dir + self.rotate_amount + math.pi) % (2 * math.pi)) - math.pi
-        self.energy -= self.traits['roaming_speed'] * (self.traits['search_radius'] / 250) * self.energy_consumption * self.traits['size'] * dt
+        self.energy -= self.traits['roaming_speed'] * (self.traits['search_radius'] / 250) * self.energy_consumption_multiplier * dt
 
     def get_pos(self):
         return (self.pos.x, self.pos.y, self.dir)
@@ -137,19 +164,24 @@ class Fish:
     # food will not be found if outside traits.search_radius
     def search_for_food(self, fish_map):
         food_gen = fish_map.get_food()
-
         # poopy code
         #_dir, closest_food_dist = pos.get_dir_dist(self, closest_food)
         closest_food, closest_food_dist = None, float("inf")
         for next_food in food_gen:
             _dir, next_food_dist = pos.get_dir_dist(self, next_food)
-            #print(next_food_dist)
             if next_food_dist < closest_food_dist:
                 closest_food, closest_food_dist = next_food, next_food_dist
         if closest_food_dist <= self.traits['search_radius']:
             return True, closest_food
         else:
             return False, None
+
+def white_to_color(img, input_color):
+    for x in range(img.get_width()):
+        for y in range(img.get_height()):
+            color = img.get_at((x, y))
+            if color == (255, 255, 255, 255):
+                img.set_at((x, y), input_color)
 
 class Fish_Sprite(pygame.sprite.Sprite):
     def __init__(self, fish_size):
@@ -158,6 +190,7 @@ class Fish_Sprite(pygame.sprite.Sprite):
         self.fish_size = fish_size
         self.original_image = pygame.image.load("fish.png")
         self.original_image = pygame.transform.scale(self.original_image, (int(50 * self.fish_size), int(70 * self.fish_size)))
+        white_to_color(self.original_image, (round(127*(2-self.fish_size)), 255, 255, 255))
         self.fish_image = self.original_image.copy()
         #self.fish_image = self.fish_image.convert()
         self.rect = self.fish_image.get_rect()
