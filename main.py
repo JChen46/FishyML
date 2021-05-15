@@ -29,6 +29,10 @@ font = pygame.font.SysFont(None, 18)
 background = pygame.image.load('background.jpg')
 background = pygame.transform.scale(background, (800,600))
 
+
+soundObj = pygame.mixer.Sound('h.ogg')
+soundObj.play()
+
 while params.APP_RUNNING:
     dt = clock.tick(30) * 0.03
     # check if user closes out of application
@@ -39,14 +43,15 @@ while params.APP_RUNNING:
             pos = pygame.mouse.get_pos()
             MAP.add_food([pos[0], pos[1], 10, 0]) #add 1 energy food at mouse location
 
-    # screen.fill((28, 46, 153))
-    screen.blit(background, background.get_rect())
+    screen.fill((28, 46, 153))
+    # screen.blit(background, background.get_rect())
 
     # check if no more fish, then finish generation
     if(len(MAP.fish_list) <= 1):
         if(params.ENABLE_GRAPHICS):
             time.sleep(5)
         # kill the last fish
+        soundObj.play()
         MAP.move_fish(MAP.fish_list[0])
         write_fish(MAP, generation) # writes fish stats to file
         old_map = deepcopy(MAP)

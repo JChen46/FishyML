@@ -68,10 +68,11 @@ class Fish:
     def seek(self, dt):
         old_pos_x = self.pos.x
         old_pos_y = self.pos.y
-        # kp * (xref - x) + kt * (vref - v)
-        self.xforce = (40 * (self.food.pos.x - self.pos.x)*dt + 12 * (-self.xvel))/1000
-        self.yforce = (40 * (self.food.pos.y - self.pos.y)*dt + 12 * (-self.yvel))/1000
-        # Old movement method
+        # kp * (xref - x) + kt * (vref - v) # currently kp and kt are hardcoded as 40 and 12
+        # self.xforce = (40 * (self.food.pos.x - self.pos.x)*dt + 12 * (-self.xvel))/1000
+        # self.yforce = (40 * (self.food.pos.y - self.pos.y)*dt + 12 * (-self.yvel))/1000
+        self.xforce, self.yforce = tuple([(40*x*dt+12*(-self.xvel))/1000 for x in pos.get_smallest_displacement(self, self.food)]) #(40 * pos.get_smallest_displacement(self, self.food)*dt + 12 * (-self.xvel))/1000)
+        # PD controller movement method
         self.pos.x = (self.pos.x + self.xforce * self.traits['seeking_speed']/10 * dt)
         self.pos.y = (self.pos.y + self.yforce * self.traits['seeking_speed']/10 * dt)
         self.xvel = (self.pos.x - old_pos_x)/dt
